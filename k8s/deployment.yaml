@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-resizer-deployment
+  namespace: k8s-basselsi
+  labels:
+    app: image-resizer-api
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: image-resizer-api
+  template:
+    metadata:
+      labels:
+        app: image-resizer-api
+        version: v1
+    spec:
+      containers:
+      - name: image-resizer
+        image: ghcr.io/basselsi/image-resizer-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: image-resizer-config
+              key: APP_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: image-resizer-config
+              key: LOG_LEVEL
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: image-resizer-config
+              key: PORT
+        - name: MAX_IMAGE_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: image-resizer-config
+              key: MAX_IMAGE_SIZE
+        - name: APP_VERSION
+          value: "1.0.0"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+      restartPolicy: Always

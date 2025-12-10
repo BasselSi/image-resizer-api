@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-basselsi
+  labels:
+    app: image-resizer-api
+    environment: production
+    managed-by: kubectl
