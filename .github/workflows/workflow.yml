@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   # docker tags require lowercase repository names (owner/repo). Lowercase here to avoid build errors.
-  IMAGE_NAME: ${{ toLower(github.repository) }}
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # Stage 1: Checkout & Setup (5 min)
