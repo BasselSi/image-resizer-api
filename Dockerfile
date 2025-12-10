@@ -31,15 +31,18 @@ RUN apt-get update && \
     libpng16-16 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder stage
-COPY --from=builder /root/.local /root/.local
+# Create non-root user for security first
+RUN useradd -m -u 1000 appuser
+
+# Copy Python dependencies from builder stage to appuser's home
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Fix ownership of the copied dependencies
+RUN chown -R appuser:appuser /home/appuser/.local && \
+    chown -R appuser:appuser /app
 
 # Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
-
-# Create non-root user for security
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Copy application code
 COPY --chown=appuser:appuser app.py .
