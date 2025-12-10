@@ -67,7 +67,7 @@ jobs:
         id: set-image
         run: |
           # compute a lowercase owner/repo string for docker tags
-          echo "image=$(echo \"${GITHUB_REPOSITORY}\" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+          echo "image=$(echo ${GITHUB_REPOSITORY} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
