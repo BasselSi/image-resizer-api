@@ -1,8 +1,10 @@
 name: Build, Test, and Deploy
 
 on:
-  push:        # trigger on every push to any branch
-  pull_request: # trigger on PRs for any branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   REGISTRY: ghcr.io
@@ -26,9 +28,12 @@ jobs:
       
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install pytest pytest-cov
+          # sanity check: try to import Pillow, install it explicitly if missing
+          python -c "import importlib, sys; importlib.import_module('PIL') or print('Pillow OK')" || \
+            (python -m pip install Pillow && python -c "import PIL; print('Pillow v'+PIL.__version__)")
       
       - name: Run unit tests
         run: |
