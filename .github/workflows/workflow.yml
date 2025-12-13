@@ -209,7 +209,7 @@ jobs:
           echo "  - ${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:latest"
           echo "  - ${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:${{ github.sha }}"
 
-  # Stage 6: Deploy to EKS (5 min) - Will be configured later
+  # Stage 6: Deploy to EKS (5 min)
   deploy:
     name: Deploy to EKS
     runs-on: ubuntu-latest
@@ -220,33 +220,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Deployment placeholder
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Configure kubectl
         run: |
-          echo "🚀 Deployment to EKS will be configured after:"
-          echo "  1. Kubernetes manifests are created"
-          echo "  2. AWS credentials are set up"
-          echo "  3. EKS cluster is ready"
+          aws eks update-kubeconfig --name my-eks-cluster --region us-west-2
+          kubectl version --client
+      
+      - name: Update deployment image
+        run: |
+          kubectl set image deployment/image-resizer-deployment \
+            image-resizer=${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:${{ github.sha }} \
+            -n k8s-basselsi
+      
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/image-resizer-deployment -n k8s-basselsi --timeout=5m
+      
+      - name: Verify deployment
+        run: |
+          echo "✅ Deployment successful!"
+          kubectl get pods -n k8s-basselsi
+          kubectl get services -n k8s-basselsi
           echo ""
-          echo "For now, the image is ready at:"
+          echo "📦 Image deployed:"
           echo "  ${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:${{ github.sha }}"
-      
-      # Uncomment and configure these steps once EKS is ready
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: us-east-1
-      
-      # - name: Configure kubectl
-      #   run: |
-      #     aws eks update-kubeconfig --name my-eks-cluster --region us-west-2
-      
-      # - name: Update image in deployment
-      #   run: |
-      #     kubectl set image deployment/image-resizer-deployment \
-      #       image-resizer=${{ env.REGISTRY }}/${{ needs.build.outputs.image-name }}:${{ github.sha }} \
-      #       -n k8s-yourname
       
       - name: Wait for rollout
         run: |

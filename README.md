@@ -1,5 +1,8 @@
 # Image Resizer API
 
+![CI](https://github.com/BasselSi/image-resizer-api/actions/workflows/workflow.yml/badge.svg)
+![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fbasselsi%2Fimage--resizer--api-blue)
+
 A simple yet powerful image processing API built with Flask. Accepts images, processes them (resize), and returns the result.
 
 ## 🚀 Features
