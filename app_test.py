@@ -58,31 +58,24 @@ class TestRootEndpoint(unittest.TestCase):
         self.client = self.app.test_client()
         self.app.config['TESTING'] = True
     
-    def test_root_endpoint_returns_documentation(self):
-        """Test / endpoint returns API documentation"""
+    def test_root_endpoint_returns_html(self):
+        """Test / endpoint returns HTML frontend"""
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
-        
-        data = json.loads(response.data)
-        self.assertIn('service', data)
-        self.assertIn('endpoints', data)
-        self.assertEqual(data['service'], 'Image Resizer API')
+        self.assertIn(b'<!DOCTYPE html>', response.data)
+        self.assertIn(b'Image Resizer', response.data)
     
-    def test_root_endpoint_lists_all_endpoints(self):
-        """Test root endpoint lists all available endpoints"""
+    def test_root_endpoint_includes_css(self):
+        """Test frontend includes CSS link"""
         response = self.client.get('/')
-        data = json.loads(response.data)
-        
-        endpoints = data['endpoints']
-        self.assertIn('GET /health', endpoints)
-        self.assertIn('GET /api/version', endpoints)
-        self.assertIn('POST /api/resize', endpoints)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'/static/style.css', response.data)
     
-    def test_root_endpoint_includes_version(self):
-        """Test root endpoint includes version info"""
+    def test_root_endpoint_includes_js(self):
+        """Test frontend includes JavaScript"""
         response = self.client.get('/')
-        data = json.loads(response.data)
-        self.assertIn('version', data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'/static/app.js', response.data)
 
 
 class TestImageResize(unittest.TestCase):
