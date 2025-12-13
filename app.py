@@ -2,7 +2,7 @@
 Image Resizer API - Simple Data Processing Application
 Accepts images, processes them (resize), and returns the result
 """
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, render_template
 from PIL import Image
 import io
 import os
@@ -46,6 +46,15 @@ def health_check():
         'timestamp': datetime.now().isoformat(),
         'environment': APP_ENV
     }), 200
+
+
+@app.route('/', methods=['GET'])
+def index():
+    """
+    Serve the web UI
+    Returns: HTML page
+    """
+    return render_template('index.html')
 
 
 @app.route('/api/version', methods=['GET'])

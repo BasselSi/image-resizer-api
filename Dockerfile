@@ -44,8 +44,10 @@ RUN chown -R appuser:appuser /home/appuser/.local && \
 # Make sure scripts in .local are usable
 ENV PATH=/home/appuser/.local/bin:$PATH
 
-# Copy application code
+# Copy application code and frontend files
 COPY --chown=appuser:appuser app.py .
+COPY --chown=appuser:appuser static ./static
+COPY --chown=appuser:appuser templates ./templates
 
 # Switch to non-root user
 USER appuser
