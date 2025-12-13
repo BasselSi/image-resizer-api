@@ -253,9 +253,9 @@ jobs:
       
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/image-resizer-deployment -n k8s-yourname
+          kubectl rollout status deployment/image-resizer-deployment -n k8s-basselsi
       
       - name: Verify deployment
         run: |
-          kubectl get pods -n k8s-bassel
-          kubectl get services -n k8s-bassel
+          kubectl get pods -n k8s-basselsi
+          kubectl get services -n k8s-basselsi
